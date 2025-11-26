@@ -1,8 +1,5 @@
 # 📚 Shelf Scanner
 
-![GitHub stars](https://img.shields.io/github/stars/your-username/shelf-scanner?style=social) 
-![GitHub forks](https://img.shields.io/github/forks/your-username/shelf-scanner?style=social) 
-![GitHub license](https://img.shields.io/github/license/your-username/shelf-scanner)
 
 **Shelf Scanner** is an AI-powered app that scans books on a shelf, extracts key info like title, author, rating, and reviews, and gives personalized recommendations. Perfect for libraries, bookstores, or personal collections.  
 

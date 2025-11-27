@@ -11,7 +11,12 @@ async def scan_books(image: UploadFile = File(...)):
     return {"books": result}
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow frontend
+    allow_origins=[
+        "https://ai-shelf-scanner.vercel.app",
+        "http://localhost:5173",
+        "*"
+     ],
+ # Allow frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

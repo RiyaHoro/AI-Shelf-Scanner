@@ -1,20 +1,22 @@
 # 📚 Shelf Scanner
 
+> AI-powered bookshelf scanner — Detect. Extract. Recommend. 📖✨
 
-**Shelf Scanner** is an AI-powered app that scans books on a shelf, extracts key info like title, author, rating, and reviews, and gives personalized recommendations. Perfect for libraries, bookstores, or personal collections.  
+Shelf Scanner scans a bookshelf image, detects books, extracts their titles/authors using OCR, fetches ratings & summaries, and gives smart reading recommendations.
 
 ---
 
 ## 🚀 Features
 
-- 🔹 **Book Detection:** Detects book spines in images using computer vision.  
-- 🔹 **OCR Extraction:** Reads titles and authors with Tesseract OCR.  
-- 🔹 **Book Info:** Fetches summaries, ratings, and reviews automatically.  
-- 🔹 **Recommendations:** Suggests books based on scanned books and preferences.  
-- 🔹 **PDF Reports:** Download full scanned results as a PDF.  
-- 🔹 **Responsive UI:** Neat cards for each book with summary and rating.
+- 📘 **AI Book Detection** — Identifies book spines in an image
+- 🔍 **OCR Text Extraction** using Tesseract
+- ⭐ **Book Details Fetch** — Summary, rating, reviews
+- 🎯 **Recommendations** — Based on scanned books & genre patterns
+- 📄 **PDF Export** of results
+- 💻 **Responsive UI** — Clean book cards layout
 
 ---
+
 
 ## 🎨 Demo
 
@@ -33,41 +35,45 @@
 
 ---
 
-## 💻 Installation
 
-### Backend
+---
+
+## ⚙️ Installation & Setup
+
+## Backend
 
 ```bash
-git clone https://github.com/your-username/shelf-scanner.git
-cd shelf-scanner/backend
+cd backend
 python -m venv venv
 # Activate venv
-# Linux/Mac
-source venv/bin/activate
 # Windows
 venv\Scripts\activate
+# Linux/Mac
+source venv/bin/activate
 pip install -r requirements.txt
 uvicorn main:app --reload
----
+
 ## Frontend
 cd ../frontend
 npm install
 npm run dev
 # Open http://localhost:5173
 ---
+```
 ## Project structure
+```bash
 Shelf-Scanner/
-├── backend/       # FastAPI backend
-│   ├── main.py
-│   ├── detect.py
-│   └── requirements.txt
-├── frontend/      # React frontend
-│   ├── src/
-│   ├── package.json
-│   └── vite.config.js
+├── backend/ # FastAPI Backend
+│ ├── main.py
+│ ├── detect.py
+│ └── requirements.txt
+├── frontend/ # React Frontend
+│ ├── src/
+│ ├── package.json
+│ └── vite.config.js
 ├── README.md
 └── .gitignore
-
+```
 ## 🧩 How to Use
 
 Take a clear picture of your bookshelf.

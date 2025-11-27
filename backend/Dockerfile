@@ -1,10 +1,10 @@
-FROM pytorch/pytorch:latest-cpu
-
+# Use Ultralytics YOLO official image (includes torch + ultralytics)
+FROM ultralytics/ultralytics:latest
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install OS dependencies
+# Install Tesseract + system deps
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     libglib2.0-0 \
@@ -14,13 +14,13 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
+# Copy only backend requirements (NO torch)
 COPY requirements.txt .
 
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir fastapi uvicorn[standard] pillow requests \
-    pytesseract numpy opencv-python-headless \
-    && pip install --no-cache-dir ultralytics==8.3.3
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
+# Copy backend code
 COPY . .
 
 EXPOSE 8000

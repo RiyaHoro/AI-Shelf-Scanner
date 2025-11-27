@@ -20,8 +20,7 @@ Shelf Scanner scans a bookshelf image, detects books, extracts their titles/auth
 
 ## 🎨 Demo
 
-![Shelf Scanner Demo](path_to_gif_or_screenshot)  
-*Upload your bookshelf image → Detect books → Get results in neat cards.*
+![Shelf Scanner Demo](/frontend/src/assets/image.png)  
 
 ---
 
@@ -31,7 +30,7 @@ Shelf Scanner scans a bookshelf image, detects books, extracts their titles/auth
 - **Backend:** FastAPI (Python)  
 - **AI/ML:** OpenCV, Tesseract OCR  
 - **Database:** PostgreSQL  
-- **Deployment:** AWS / Render / Local
+- **Deployment:**  Render (backend) , Vercel (frontend)
 
 ---
 

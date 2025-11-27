@@ -12,7 +12,7 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [recommendations, setRecommendations] = useState([]);
 
-  const API_URL = "http://127.0.0.1:8000/scan";
+  const API_URL = "https://ai-shelf-scanner-1.onrender.com/scan";
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -74,7 +74,7 @@ function App() {
 </h1>
 
 
-      <input type="file" accept="image/*" onChange={handleUpload} className="upload-input" />
+      <input type="file" accept="image/*" onChange={handleUpload} className="upload-input" /> UPLOAD A SHELF IMAGE (I)
 
       {preview && (
         <img className="preview-img" src={preview} alt="Preview" />

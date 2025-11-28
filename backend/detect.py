@@ -5,65 +5,112 @@ import requests
 from PIL import Image
 from ultralytics import YOLO
 import numpy as np
+import asyncio
+import httpx
 
-model = YOLO("yolov8n.pt")  # you can replace with custom trained model later
+# Load YOLO model ONCE (Big performance boost)
+model = YOLO("yolov8n.pt")
 
 GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes?q="
 
+
+# -----------------------------------------------------------
+# 1) DETECT BOOK SPINES (Optimized)
+# -----------------------------------------------------------
 def detect_spines(image_bytes):
-    image = Image.open(io.BytesIO(image_bytes))
+    try:
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    except Exception:
+        return []
+
     img = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
-    results = model(img)
+    # ⚡ Resize for speed
+    img = cv2.resize(img, (640, 640))
+
+    results = model(img, verbose=False)
     cropped_spines = []
 
-    # Extract bounding boxes
     for box in results[0].boxes:
         x1, y1, x2, y2 = map(int, box.xyxy[0])
+
+        # ⚡ Skip tiny crops (noise)
+        if (x2 - x1) < 30 or (y2 - y1) < 80:
+            continue
+
         crop = img[y1:y2, x1:x2]
         cropped_spines.append(crop)
 
     return cropped_spines
 
 
+# -----------------------------------------------------------
+# 2) OCR (Optimized)
+# -----------------------------------------------------------
 def extract_text(image):
-    text = pytesseract.image_to_string(Image.fromarray(image))
-    return text.strip()
+    try:
+        text = pytesseract.image_to_string(Image.fromarray(image))
+        text = text.strip()
 
+        # ⚡ Filter nonsense OCR
+        if len(text) < 3:
+            return None
+        if not any(c.isalpha() for c in text):
+            return None
 
-# 🔥 Enhanced function: fetch full book details
-def fetch_book_details(query):
-    url = GOOGLE_BOOKS_API + query
-    res = requests.get(url).json()
+        return text
 
-    if "items" not in res:
+    except Exception:
         return None
 
-    info = res["items"][0]["volumeInfo"]
 
-    return {
-        "title": info.get("title", "Unknown"),
-        "authors": info.get("authors", ["Unknown"]),
-        "thumbnail": info.get("imageLinks", {}).get("thumbnail", ""),
-        "summary": info.get("description", "No summary available"),
-        "categories": info.get("categories", ["Uncategorized"]),
-        "rating": info.get("averageRating", "N/A")
-    }
+# -----------------------------------------------------------
+# 3) ASYNC GOOGLE BOOKS CALL (Much faster)
+# -----------------------------------------------------------
+async def fetch_book(query):
+    try:
+        url = GOOGLE_BOOKS_API + query
+
+        async with httpx.AsyncClient(timeout=10) as client:
+            r = await client.get(url)
+            data = r.json()
+
+            if "items" not in data:
+                return None
+
+            info = data["items"][0]["volumeInfo"]
+
+            return {
+                "title": info.get("title", "Unknown"),
+                "authors": info.get("authors", ["Unknown"]),
+                "thumbnail": info.get("imageLinks", {}).get("thumbnail", ""),
+                "summary": info.get("description", "No summary available"),
+                "categories": info.get("categories", ["Uncategorized"]),
+                "rating": info.get("averageRating", "N/A")
+            }
+
+    except Exception:
+        return None
 
 
+# -----------------------------------------------------------
+# 4) MAIN FUNCTION — Optimized + Parallel API Calls
+# -----------------------------------------------------------
 def detect_books(image_bytes):
     spines = detect_spines(image_bytes)
-    results = []
+    ocr_texts = []
 
+    # OCR all crops
     for spine in spines:
         text = extract_text(spine)
-        print("OCR:", text)
+        if text:
+            ocr_texts.append(text)
 
-        if len(text) < 3:
-            continue
+    # ⚡ Run Google Books calls in parallel
+    async def gather_books():
+        tasks = [fetch_book(t) for t in ocr_texts]
+        results = await asyncio.gather(*tasks)
+        return [r for r in results if r]
 
-        book = fetch_book_details(text)
-        if book:
-            results.append(book)
-
+    results = asyncio.run(gather_books())
     return results

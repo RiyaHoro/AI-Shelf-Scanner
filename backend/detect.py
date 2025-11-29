@@ -6,7 +6,13 @@ from PIL import Image
 from ultralytics import YOLO
 import numpy as np
 
-model = YOLO("yolov8n.pt")
+model = None
+
+def load_model():
+    global model
+    if model is None:
+        model = YOLO("yolov8n.pt")
+
 
 GOOGLE_BOOKS_API = "https://www.googleapis.com/books/v1/volumes?q="
 
@@ -27,26 +33,34 @@ def detect_spines(image_bytes):
 
 
 def extract_text(image):
-    text = pytesseract.image_to_string(Image.fromarray(image))
+    resized = cv2.resize(image, (200, 200))
+    text = pytesseract.image_to_string(Image.fromarray(resized))
     return text.strip()
 
 
 def fetch_book_details(query):
-    res = requests.get(GOOGLE_BOOKS_API + query).json()
+    if query in BOOK_CACHE:
+        return BOOK_CACHE[query]
+
+    url = GOOGLE_BOOKS_API + query
+    res = requests.get(url).json()
 
     if "items" not in res:
         return None
 
     info = res["items"][0]["volumeInfo"]
 
-    return {
+    book = {
         "title": info.get("title", "Unknown"),
-        "authors": ", ".join(info.get("authors", ["Unknown"])),
+        "authors": info.get("authors", ["Unknown"]),
         "thumbnail": info.get("imageLinks", {}).get("thumbnail", ""),
         "summary": info.get("description", "No summary available"),
-        "categories": ", ".join(info.get("categories", ["Uncategorized"])),
-        "rating": str(info.get("averageRating", "N/A"))
+        "categories": info.get("categories", ["Uncategorized"]),
+        "rating": info.get("averageRating", "N/A")
     }
+
+    BOOK_CACHE[query] = book
+    return book
 
 
 def detect_books(image_bytes):

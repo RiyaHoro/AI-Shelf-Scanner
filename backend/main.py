@@ -2,8 +2,13 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from database import SessionLocal, Book
 from detect import detect_books
+from detect import load_model
 
 app = FastAPI()
+
+@app.on_event("startup")
+def startup_event():
+    load_model()
 
 # CORS
 app.add_middleware(
